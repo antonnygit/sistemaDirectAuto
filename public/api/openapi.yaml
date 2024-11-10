@@ -1,0 +1,467 @@
+openapi: '3.0.1'
+info:
+  title: 'P3M'
+  description: 'API da p3m'
+  version: '1.0'
+
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: localhost
+      port:
+        default: '8000'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Bearer token. Ex: "Authorization: Bearer <token>"'
+
+  schemas:
+    brand:
+      type: object
+      description: Marca
+      properties:
+        id:
+          type: integer
+          description: "ID único da marca"
+        brand:
+          type: string
+          maxLength: 45
+          description: "Nome da marca"
+        created_at:
+          type: string
+          format: date-time
+          description: "Data de criação da marca"
+        updated_at:
+          type: string
+          format: date-time
+          description: "Data da última atualização da marca"
+      required:
+        - brand
+
+    vehicleStatus:
+      type: object
+      description: Status de um veículo
+      properties:
+        id:
+          type: integer
+          description: "ID único do status do veículo"
+        status:
+          type: string
+          maxLength: 45
+          description: "Descrição do status do veículo"
+        created_at:
+          type: string
+          format: date-time
+          description: "Data de criação do status"
+        updated_at:
+          type: string
+          format: date-time
+          description: "Data da última atualização do status"
+      required:
+        - status
+
+    vehicle:
+      type: object
+      description: Veículo
+      properties:
+        id:
+          type: integer
+          description: "ID único do veículo"
+        model:
+          type: string
+          maxLength: 45
+          description: "Modelo do veículo"
+        release_model:
+          type: string
+          format: date
+          description: "Data de lançamento do modelo"
+        release_year:
+          type: string
+          format: date
+          description: "Ano de lançamento do veículo"
+        color:
+          type: string
+          maxLength: 45
+          description: "Cor do veículo"
+        km:
+          type: integer
+          default: 0
+          description: "Quilometragem do veículo"
+        description:
+          type: string
+          description: "Descrição adicional do veículo"
+        price:
+          type: number
+          format: float
+          description: "Preço do veículo"
+        brand_id:
+          type: integer
+          description: "ID da marca do veículo"
+        status_id:
+          type: integer
+          description: "ID do status do veículo"
+        created_at:
+          type: string
+          format: date-time
+          description: "Data de criação do veículo"
+        updated_at:
+          type: string
+          format: date-time
+          description: "Data da última atualização do veículo"
+      required:
+        - model
+        - release_year
+        - color
+        - brand_id
+        - status_id
+        - price
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/v1/brand:
+    get:
+      summary: "Lista de Marcas"
+      operationId: "getAllBrands"
+      tags:
+        - "Brands"
+      responses:
+        '200':
+          description: "Lista de marcas"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/brand"
+    post:
+      summary: "Criar uma nova marca"
+      operationId: "createBrand"
+      tags:
+        - "Brands"
+      requestBody:
+        description: "Dados da marca a ser criada"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/brand"
+      responses:
+        '201':
+          description: "Marca criada com sucesso"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/brand"
+        
+  /api/v1/brand/{brandId}:
+    put:
+      summary: "Atualizar uma marca existente"
+      operationId: "updateBrand"
+      tags:
+        - "Brands"
+      parameters:
+        - name: "brandId"
+          in: "path"
+          required: true
+          description: "ID da marca"
+          schema:
+            type: integer
+      requestBody:
+        description: "Dados da marca a ser atualizada"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/brand"
+      responses:
+        '200':
+          description: "Marca atualizada com sucesso"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/brand"
+        '404':
+          description: "Marca não encontrada"
+    delete:
+      summary: "Deletar uma marca"
+      operationId: "deleteBrand"
+      tags:
+        - "Brands"
+      parameters:
+        - name: "brandId"
+          in: "path"
+          required: true
+          description: "ID da marca"
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: "Marca deletada com sucesso"
+        '404':
+          description: "Marca não encontrada"
+
+  /api/v1/vehicleStatus:
+    get:
+      summary: "Lista de Status dos Veículos"
+      operationId: "getAllVehicleStatuses"
+      tags:
+        - "VehicleStatus"
+      responses:
+        '200':
+          description: "Lista de status dos veículos"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/vehicleStatus"
+    post:
+      summary: "Criar um novo Status de Veículo"
+      operationId: "createVehicleStatus"
+      tags:
+        - "VehicleStatus"
+      requestBody:
+        description: "Dados do status do veículo a ser criado"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  maxLength: 45
+                  description: "Descrição do status do veículo"
+              required:
+                - status
+              
+      responses:
+        '201':
+          description: "Status de veículo criado com sucesso"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/vehicleStatus"
+
+  /api/v1/vehicleStatus/{statusId}:
+    put:
+      summary: "Atualizar um Status de Veículo"
+      operationId: "updateVehicleStatus"
+      tags:
+        - "VehicleStatus"
+      parameters:
+        - name: "statusId"
+          in: "path"
+          required: true
+          description: "ID do status do veículo"
+          schema:
+            type: integer
+      requestBody:
+        description: "Dados do status do veículo a ser atualizado"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  maxLength: 45
+                  description: "Descrição do status do veículo"
+              required:
+                - status
+      responses:
+        '200':
+          description: "Status de veículo atualizado com sucesso"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/vehicleStatus"
+        '404':
+          description: "Status do veículo não encontrado"
+    delete:
+      summary: "Deletar um Status de Veículo"
+      operationId: "deleteVehicleStatus"
+      tags:
+        - "VehicleStatus"
+      parameters:
+        - name: "statusId"
+          in: "path"
+          required: true
+          description: "ID do status do veículo"
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: "Status de veículo deletado com sucesso"
+        '404':
+          description: "Status do veículo não encontrado"
+
+  /api/v1/vehicle:
+    get:
+      summary: "Lista de Veículos"
+      operationId: "getAllVehicles"
+      tags:
+        - "Vehicle"
+      responses:
+        '200':
+          description: "Lista de veículos"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/vehicle"
+    post:
+      summary: "Criar um novo Veículo"
+      operationId: "createVehicle"
+      tags:
+        - "Vehicle"
+      requestBody:
+        description: "Dados do veículo a ser criado"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model:
+                  type: string
+                  maxLength: 45
+                  description: "Modelo do veículo"
+                release_model:
+                  type: string
+                  format: date
+                  description: "Data de lançamento do modelo"
+                release_year:
+                  type: string
+                  format: date
+                  description: "Ano de lançamento do veículo"
+                color:
+                  type: string
+                  maxLength: 45
+                  description: "Cor do veículo"
+                km:
+                  type: integer
+                  description: "Quilometragem do veículo"
+                description:
+                  type: string
+                  description: "Descrição adicional do veículo"
+                price:
+                  type: number
+                  format: float
+                  description: "Preço do veículo"
+                brand_id:
+                  type: integer
+                  description: "ID da marca do veículo"
+                status_id:
+                  type: integer
+                  description: "ID do status do veículo"
+              required:
+                - model
+                - release_year
+                - color
+                - brand_id
+                - status_id
+                - price
+      responses:
+        '201':
+          description: "Veículo criado com sucesso"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/vehicle"
+
+  /api/v1/vehicle/{vehicleId}:
+    put:
+      summary: "Atualizar um Veículo"
+      operationId: "updateVehicle"
+      tags:
+        - "Vehicle"
+      parameters:
+        - name: "vehicleId"
+          in: "path"
+          required: true
+          description: "ID do veículo"
+          schema:
+            type: integer
+      requestBody:
+        description: "Dados do veículo a ser atualizado"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model:
+                  type: string
+                  maxLength: 45
+                  description: "Modelo do veículo"
+                release_model:
+                  type: string
+                  format: date
+                  description: "Data de lançamento do modelo"
+                release_year:
+                  type: string
+                  format: date
+                  description: "Ano de lançamento do veículo"
+                color:
+                  type: string
+                  maxLength: 45
+                  description: "Cor do veículo"
+                km:
+                  type: integer
+                  description: "Quilometragem do veículo"
+                description:
+                  type: string
+                  description: "Descrição adicional do veículo"
+                price:
+                  type: number
+                  format: float
+                  description: "Preço do veículo"
+                brand_id:
+                  type: integer
+                  description: "ID da marca do veículo"
+                status_id:
+                  type: integer
+                  description: "ID do status do veículo"
+              required:
+                - model
+                - release_year
+                - color
+                - brand_id
+                - status_id
+                - price
+      responses:
+        '200':
+          description: "Veículo atualizado com sucesso"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/vehicle"
+        '404':
+          description: "Veículo não encontrado"
+    delete:
+      summary: "Deletar um Veículo"
+      operationId: "deleteVehicle"
+      tags:
+        - "Vehicle"
+      parameters:
+        - name: "vehicleId"
+          in: "path"
+          required: true
+          description: "ID do veículo"
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: "Veículo deletado com sucesso"
+        '404':
+          description: "Veículo não encontrado"
