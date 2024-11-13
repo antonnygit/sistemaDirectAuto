@@ -1,4 +1,4 @@
-<a> < href="https://www.figma.com/board/fSeQsCg9qdy3wXBbmhmDFk/Gerenciamento-de-Front-End?node-id=0-1&node-type=canvas&t=lwfZ32y2gYAwkU47-0" target="_blank" >    <button> FigJam </button> </a>  
+<a href="https://www.figma.com/board/fSeQsCg9qdy3wXBbmhmDFk/Gerenciamento-de-Front-End?node-id=0-1&node-type=canvas&t=lwfZ32y2gYAwkU47-0" target="_blank" >    <button> FigJam </button> </a>  
 
 
 
