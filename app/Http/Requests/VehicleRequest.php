@@ -25,14 +25,13 @@ class VehicleRequest extends FormRequest
      */
     public function rules(): array
     {
-        // PRECISA VALIDAR IMAGEM QUANDO IMPLEMENTAR IMAGEM
         return [
             'model' => 'required|string|max:45',
             'release_model' => 'required|date_format:Y|before_or_equal:' . date('Y'),
             'release_year' => 'required|date_format:Y|before_or_equal:' . date('Y'),
             'color' => 'required|string|in:' . $this->colors,
             'km' => 'integer|min:0',
-            'description' => 'string',
+            'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'brand_id' => 'required|integer|exists:brands,id',
             'status_id' => 'required|integer|exists:vehicle_status,id'
@@ -46,7 +45,8 @@ class VehicleRequest extends FormRequest
                 'success' => false,
                 'message' => 'Validation errors',
                 'data' => $validator->errors()
-            ]
+            ],
+            400
         ));
     }
 
@@ -63,7 +63,7 @@ class VehicleRequest extends FormRequest
             "price.min" => "O campo valor deve possuir um valor igual ou maior que 0",
             "integer" => "O campo :attribute deve possuir apenas número inteiro",
             "brand_id" => "A marca selecionada não existe",
-            "status_id" => "O status do veículo não existe"
+            "status_id" => "O status do veículo não existe",
         ];
     }
 }
