@@ -1,9 +1,6 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
-require_once "api.php";
+require_once "auth.php";
+require_once "brand.php";
+require_once "vehicle.php";
+require_once "vehicleStatus.php";
