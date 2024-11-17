@@ -15,6 +15,7 @@ class Vehicle extends Model
         "description",
         "price",
         "brand_id",
-        "status_id"
+        "status_id",
+        "image"
     ];
 }
