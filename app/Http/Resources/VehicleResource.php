@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class VehicleResource extends JsonResource
 {
@@ -20,6 +21,7 @@ class VehicleResource extends JsonResource
             "release_year" => $this->release_year,
             "color" => $this->color,
             "km" => $this->km,
+            "image" => $this->image ? Storage::url($this->image) : null,
             "description" => $this->description,
             "price" => $this->price,
             "brand_id" => $this->brand_id,
