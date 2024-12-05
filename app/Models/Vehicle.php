@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Vehicle extends Model
 {
     protected $fillable = [
+        "name",
         "model",
         "release_model",
         "release_year",
@@ -16,6 +17,12 @@ class Vehicle extends Model
         "price",
         "brand_id",
         "status_id",
-        "image"
+        "image",
+        "user_id"
     ];
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
 }
