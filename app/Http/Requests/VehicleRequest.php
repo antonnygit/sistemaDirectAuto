@@ -27,14 +27,15 @@ class VehicleRequest extends FormRequest
     {
         return [
             'model' => 'required|string|max:45',
-            'release_model' => 'required|date_format:Y|before_or_equal:' . date('Y'),
-            'release_year' => 'required|date_format:Y|before_or_equal:' . date('Y'),
+            'release_model' => 'required|integer|min:1886|max:' . date('Y'),
+            'release_year' => 'required|integer|min:1886|max:' . date('Y'),
             'color' => 'required|string|in:' . $this->colors,
             'km' => 'integer|min:0',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'brand_id' => 'required|integer|exists:brands,id',
-            'status_id' => 'required|integer|exists:vehicle_status,id'
+            'status_id' => 'required|integer|exists:vehicle_status,id',
+            'name' => 'required|string|max:45'
         ];
     }
 
