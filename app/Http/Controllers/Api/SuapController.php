@@ -3,49 +3,43 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreSuapRequest;
+use App\Models\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Ramsey\Uuid\Guid\Guid;
 
 class SuapController extends Controller
 {
-    public function getAccessToken()
+    public function authSuap(StoreSuapRequest $request)
     {
-        $client = new Client();
+        $client = new Client(['verify' => false]);
 
-        // $response = $client->post('https://suap.ifrn.com.br/oauth/token', [
-        //     'form_params' => [
-        //         'grant_type' => 'client_credentials',  // ou 'authorization_code', conforme o fluxo
-        //         'client_id' => env('SUAP_CLIENT_ID'),
-        //         'client_secret' => env('SUAP_CLIENT_SECRET'),
-        //         'scope' => 'read write', // ajuste conforme necessário
-        //     ]
-        // ]);
+        $data = $request->validated();
+        $data['password'] = Guid::uuid4()->toString();
+        $photo = $data['photo'];
 
-        $response = $client->post('https://suap.ifrn.com.br/oauth/token', [
-            'form_params' => [
-                'grant_type' => 'authorization_code',  // ou 'authorization_code', conforme o fluxo
-                'client_id' => env('SUAP_ID'),
-                'client_secret' => env('SUAP_SECRET'),
-                'scope' => 'read write', // ajuste conforme necessário
-            ]
+        $user = User::where('email', $data["email"])->first();
+        if ($user) {
+            $user->tokens()->delete();
+        } else {
+            if (strlen($photo) > 0) {
+                $response = $client->get($photo);
+                $imageContent = $response->getBody()->getContents();
+                $fileName = time() . '.jpg';
+                Storage::disk('public')->put('profile/' . $fileName, $imageContent);
+                $data['photo'] = "storage/profile/" . $fileName;
+            }
+            $user = User::create($data);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Usuário logado com sucesso',
+            'token' => $token,
         ]);
-
-        $body = json_decode($response->getBody(), true);
-        return $body['access_token'];
     }
-
-    public function getUserData($accessToken)
-    {
-        $client = new Client();
-
-        $response = $client->get('https://suap.ifrn.com.br/api/eu/', [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $accessToken,
-            ],
-        ]);
-
-        $userData = json_decode($response->getBody(), true);
-        return $userData;
-    }
-
 }
