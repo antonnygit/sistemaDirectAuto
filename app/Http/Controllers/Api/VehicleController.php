@@ -7,6 +7,7 @@ use App\Http\Requests\VehicleRequest;
 use App\Http\Resources\VehicleResource;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -14,23 +15,16 @@ class VehicleController extends Controller
 {
     public function index()
     {
-        $vehicles = Vehicle::all();
+        $vehicles = Vehicle::with('brand')->orderBy('created_at', 'desc')->get();
         return VehicleResource::collection($vehicles);
     }
 
     public function store(VehicleRequest $request)
     {
-        $vehicleData = $request->validated();
-
-        // VERIFICAR SE TEM IMAGEM
-        if ($request->hasFile('image') && $request->file('image')->isValid()) {
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('images', $imageName, 'public');
-            $vehicleData['image'] = $path;
-        }
-
-        $vehicle = Vehicle::create($vehicleData);
+        $data = $request->validated();
+        $user = auth('sanctum')->user();
+        $data['user_id'] = $user->id;
+        $vehicle = Vehicle::create($data);
         return new VehicleResource($vehicle);
     }
 
@@ -77,6 +71,28 @@ class VehicleController extends Controller
                 'data' => $e->errors()
             ], 400);
         }
+    }
+
+    public function show(Vehicle $vehicle)
+    {
+        $vehicle->with('brand');
+        return new VehicleResource($vehicle);
+    }
+
+    public function search(Request $request)
+    {
+        $text = $request->query('search');
+        if (strlen($text) == 0)
+        {
+            $vehicles = Vehicle::with('brand')->get();
+            return VehicleResource::collection($vehicles);
+        }
+
+        $vehicles = Vehicle::where('name', 'like', '%' . $text . '%')
+        ->orWhere('model', 'like', '%' . $text . '%')
+        ->with('brand')
+        ->get();
+        return VehicleResource::collection($vehicles);
     }
 
     public function destroy(Vehicle $vehicle)
