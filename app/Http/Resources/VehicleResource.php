@@ -19,15 +19,18 @@ class VehicleResource extends JsonResource
             "id" => $this->id,
             "release_model" => $this->release_model,
             "release_year" => $this->release_year,
+            "name" => $this->name,
+            "model" => $this->model,
             "color" => $this->color,
             "km" => $this->km,
             "image" => $this->image ? Storage::url($this->image) : null,
             "description" => $this->description,
             "price" => $this->price,
-            "brand_id" => $this->brand_id,
+            "brand" => $this->brand ? $this->brand : null,
             "status_id" => $this->status_id,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
+            "user_id"   => $this->user_id
         ];
     }
 }
