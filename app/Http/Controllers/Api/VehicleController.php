@@ -19,6 +19,13 @@ class VehicleController extends Controller
         return VehicleResource::collection($vehicles);
     }
 
+    public function myVehicles()
+    {
+        $user = auth('sanctum')->user();
+        $vehicles = Vehicle::where('user_id', $user->id)->with('brand')->orderBy('created_at', 'desc')->get();
+        return VehicleResource::collection($vehicles);
+    }
+
     public function store(VehicleRequest $request)
     {
         $data = $request->validated();
